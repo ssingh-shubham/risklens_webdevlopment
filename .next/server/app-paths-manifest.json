@@ -1,0 +1,13 @@
+{
+  "/api/risk-scores/get/route": "app/api/risk-scores/get/route.js",
+  "/api/auth/admin-login/route": "app/api/auth/admin-login/route.js",
+  "/api/user/route": "app/api/user/route.js",
+  "/api/admin/all-scores/route": "app/api/admin/all-scores/route.js",
+  "/riskassessment/page": "app/riskassessment/page.js",
+  "/riskassessment/dashboard/page": "app/riskassessment/dashboard/page.js",
+  "/page": "app/page.js",
+  "/auth/page": "app/auth/page.js",
+  "/profile/previous-risk-scores/page": "app/profile/previous-risk-scores/page.js",
+  "/profile/user/page": "app/profile/user/page.js",
+  "/admin/dashboard/page": "app/admin/dashboard/page.js"
+}
