@@ -54,6 +54,7 @@ interface DashboardData {
   healthResult: any
   financeForm: FinanceFormData
   healthForm: HealthFormData
+  timestamp?: number
 }
 
 interface ScoreData {
@@ -114,22 +115,53 @@ export default function Dashboard() {
   }
 
   useEffect(() => {
+    console.log("Dashboard useEffect triggered")
+    
     // Check if we're in the browser environment
     if (typeof window !== 'undefined') {
-      const data = localStorage.getItem("dashboardData")
+      // Add debugging logs
+      console.log("Available localStorage keys:", Object.keys(localStorage))
+      console.log("Available sessionStorage keys:", Object.keys(sessionStorage))
+      
+      // Try both localStorage and sessionStorage
+      let data = localStorage.getItem("dashboardData")
+      let source = "localStorage"
+      
+      if (!data) {
+        data = sessionStorage.getItem("dashboardData")
+        source = "sessionStorage"
+      }
+      
+      console.log(`Data source: ${source}`)
+      console.log("Raw data:", data)
+      
       if (data) {
         try {
           const parsedData = JSON.parse(data)
-          console.log("Dashboard data loaded:", parsedData)
-          setDashboardData(parsedData)
-          calculateScores(parsedData)
+          console.log("Dashboard data loaded from", source, ":", parsedData)
+          
+          // Validate the data structure
+          if (parsedData && (parsedData.financeResult || parsedData.healthResult)) {
+            setDashboardData(parsedData)
+            calculateScores(parsedData)
+          } else {
+            console.error("Invalid dashboard data structure:", parsedData)
+            router.push("/riskassessment")
+          }
         } catch (error) {
           console.error("Error parsing dashboard data:", error)
-          router.push("/")
+          router.push("/riskassessment")
         }
       } else {
-        console.warn("No dashboard data found in localStorage")
-        router.push("/")
+        console.warn("No dashboard data found in localStorage or sessionStorage")
+        // Add a small delay to handle potential race conditions
+        setTimeout(() => {
+          const retryData = localStorage.getItem("dashboardData") || sessionStorage.getItem("dashboardData")
+          if (!retryData) {
+            console.error("Still no data after retry, redirecting...")
+            router.push("/riskassessment")
+          }
+        }, 1000)
       }
 
       // Load previous scores if authenticated
@@ -138,7 +170,8 @@ export default function Dashboard() {
       }
     } else {
       // If not in browser, redirect
-      router.push("/")
+      console.log("Not in browser environment, redirecting...")
+      router.push("/riskassessment")
     }
   }, [router])
 
@@ -505,10 +538,10 @@ export default function Dashboard() {
       // Calculate Finance Score - PRIORITY: Use model results first
       let FSI = 0.5 // Default medium risk
       
-      if (data.financeResult?.RiskRating) {
+      if (data.financeResult?.["Risk Rating"]) {
         // Use the actual model prediction result
-        const riskRating = data.financeResult.RiskRating.toLowerCase()
-        console.log("Using finance model result - RiskRating:", data.financeResult.RiskRating)
+        const riskRating = data.financeResult["Risk Rating"].toLowerCase()
+        console.log("Using finance model result - Risk Rating:", data.financeResult["Risk Rating"])
         
         if (riskRating === "low") FSI = 0.2
         else if (riskRating === "medium") FSI = 0.5
@@ -723,7 +756,7 @@ export default function Dashboard() {
       <div className="container mx-auto px-4 py-8">
         {/* Header */}
         <div className="flex items-center justify-between mb-8">
-          <Button variant="ghost" onClick={() => router.push("/")} className="flex items-center gap-2">
+          <Button variant="ghost" onClick={() => router.push("/riskassessment")} className="flex items-center gap-2">
             <ArrowLeft className="h-4 w-4" />
             Back to Assessment
           </Button>
@@ -957,8 +990,8 @@ export default function Dashboard() {
                       <p><strong>Model Prediction:</strong></p>
                       <ul className="mt-1 space-y-1">
                         <li>• 10-Year CHD Risk: {dashboardData.healthResult.probability ? `${Math.round(dashboardData.healthResult.probability * 100)}%` : 'N/A'}</li>
-                        {dashboardData.healthResult.Ten_Year_CHD !== undefined && (
-                          <li>• Prediction: {dashboardData.healthResult.Ten_Year_CHD ? 'Risk Present' : 'No Risk'}</li>
+                        {dashboardData.healthResult.TenYearCHD !== undefined && (
+                          <li>• Prediction: {dashboardData.healthResult.TenYearCHD ? 'Risk Present' : 'No Risk'}</li>
                         )}
                       </ul>
                     </div>
@@ -1009,7 +1042,7 @@ export default function Dashboard() {
                     <div className="text-xs text-gray-500 border-t pt-3">
                       <p><strong>Model Prediction:</strong></p>
                       <ul className="mt-1 space-y-1">
-                        <li>• Risk Rating: {dashboardData.financeResult.RiskRating || 'N/A'}</li>
+                        <li>• Risk Rating: {dashboardData.financeResult["Risk Rating"] || 'N/A'}</li>
                         {dashboardData.financeResult.FSI !== undefined && (
                           <li>• Financial Stability Index: {dashboardData.financeResult.FSI.toFixed(3)}</li>
                         )}
