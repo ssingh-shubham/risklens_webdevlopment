@@ -241,6 +241,48 @@ export default function Page() {
     }
   }
 
+  // Function to handle dashboard navigation with proper data storage
+  const handleViewDashboard = () => {
+    try {
+      const dashboardData = {
+        financeResult: financeResult,
+        healthResult: healthResult,
+        financeForm: financeForm,
+        healthForm: healthForm,
+        timestamp: new Date().getTime() // Add timestamp for debugging
+      }
+
+      console.log("Storing dashboard data:", dashboardData)
+
+      if (typeof window !== 'undefined') {
+        // Clear any existing data first
+        localStorage.removeItem("dashboardData")
+        sessionStorage.removeItem("dashboardData")
+        
+        // Store in both localStorage and sessionStorage for reliability
+        localStorage.setItem("dashboardData", JSON.stringify(dashboardData))
+        sessionStorage.setItem("dashboardData", JSON.stringify(dashboardData))
+        
+        // Verify data was stored
+        const storedLocal = localStorage.getItem("dashboardData")
+        const storedSession = sessionStorage.getItem("dashboardData")
+        
+        console.log("Data stored in localStorage:", !!storedLocal)
+        console.log("Data stored in sessionStorage:", !!storedSession)
+        
+        if (storedLocal && storedSession) {
+          router.push("/riskassessment/dashboard")
+        } else {
+          console.error("Failed to store dashboard data")
+          alert("Failed to save data. Please try again.")
+        }
+      }
+    } catch (error) {
+      console.error("Error storing dashboard data:", error)
+      alert("An error occurred while preparing dashboard data.")
+    }
+  }
+
   return (
     <div className="space-y-8">
       <div className="relative max-w-6xl mx-auto py-12 space-y-8">
@@ -1058,20 +1100,7 @@ export default function Page() {
           <Button
             variant="default"
             className="flex-1 max-w-xs bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700"
-            onClick={() => {
-              // Pass the API results to dashboard
-              const dashboardData = {
-                financeResult: financeResult,
-                healthResult: healthResult,
-                financeForm: financeForm,
-                healthForm: healthForm,
-              }
-              // Use sessionStorage for better compatibility
-              if (typeof window !== 'undefined') {
-                sessionStorage.setItem("dashboardData", JSON.stringify(dashboardData))
-              }
-              router.push("/riskassessment/dashboard")
-            }}
+            onClick={handleViewDashboard}
             disabled={!financeResult && !healthResult}
           >
             View Dashboard
