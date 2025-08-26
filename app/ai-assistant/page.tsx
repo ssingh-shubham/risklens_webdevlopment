@@ -485,7 +485,7 @@ I can provide advice and suggestions based on these scores.`
   return (
     <div className="flex h-screen bg-gray-100 dark:bg-gray-900">
       <ChatHistorySidebar
-        currentSessionId={currentSessionId}
+        currentSessionId={currentSessionId ?? undefined}
         onSessionSelect={loadSession}
         onNewChat={createNewSession} // This is the ONLY way to create sessions
         userId={userId}
