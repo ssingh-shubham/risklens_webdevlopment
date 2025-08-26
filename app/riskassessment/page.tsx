@@ -138,7 +138,7 @@ export default function Page() {
       }
 
       // Get prediction from ML API
-      const response = await fetch("http://localhost:8000/finance/predict", {
+      const response = await fetch("https://risklensml.nicemushroom-7e1de36b.westus2.azurecontainerapps.io/finance/predict", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -195,7 +195,7 @@ export default function Page() {
 
     try {
       // Get prediction from ML API
-      const response = await fetch("http://127.0.0.1:8000/health/predict", {
+      const response = await fetch("https://risklensml.nicemushroom-7e1de36b.westus2.azurecontainerapps.io/health/predict", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
