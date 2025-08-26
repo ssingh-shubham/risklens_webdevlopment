@@ -432,7 +432,7 @@ I can provide advice and suggestions based on these scores.`
 
       console.log("Sending API payload:", apiPayload)
 
-      const response = await fetch("http://127.0.0.1:8080/ask", {
+      const response = await fetch("https://risklenschatbot.nicemushroom-7e1de36b.westus2.azurecontainerapps.io/ask", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(apiPayload),
